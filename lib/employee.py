@@ -3,17 +3,14 @@ from __init__ import CURSOR, CONN
 from department import Department
 
 class Employee:
-
-    # Dictionary of objects saved to the database.
     all = {}
-
     def __init__(self, name, job_title, department_id, id=None):
         self.id = id
         self.name = name
         self.job_title = job_title
         self.department_id = department_id
 
-    def __repr__(self):
+    def _repr_(self):
         return (
             f"<Employee {self.id}: {self.name}, {self.job_title}, " +
             f"Department ID: {self.department_id}>"
@@ -186,5 +183,11 @@ class Employee:
         return cls.instance_from_db(row) if row else None
 
     def reviews(self):
-        """Return list of reviews associated with current employee"""
-        pass
+        """Return a list of reviews associated with the current employee."""
+        from review import Review
+        sql = """
+             SELECT * FROM reviews
+             WHERE employee_id = ?
+        """
+        rows = CURSOR.execute(sql, (self.id,)).fetchall()
+        return [Review.instance_from_db(row) for row in rows]
